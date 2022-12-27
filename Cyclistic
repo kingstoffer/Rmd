@@ -1,0 +1,122 @@
+---
+title: 'Case Study: Cyclistic'
+subtitle: 'as part of the Google Data Analytics: Capstone Project'
+author: "Kristoffer Lawas"
+date: "2022-12-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### A case study to practice and hone my skills in the data analysis process: ask, prepare, process, analyze, share, and act.
+
+### Scenario
+As an associate Data Analyst working in the marketing analyst team Cyclistic, a bike-share company in Chicago, you are tasked to determine the difference between annual members and casual riders. 
+
+The executives believes that by maximizing the amount of annual membership will lead to success of the company. Your team is now tasked to design a new marketing strategy to entice casual riders into subscribing in an annual membership. Your analysis and insights must be presented to the executives in a clear and comprehensible presentation together with your recommendations.
+
+### __ASK__
+
+#### Objectives
+* How do annual members and casual riders use Cyclistic bikes differently?
+* Why would casual riders buy Cyclistic annual memberships?
+* How can Cyclistic use digital media to influence casual riders to become members?
+
+### __PREPARE__ your data
+the data that we are going to use is downloaded from a public AWS server provided in the course. 12 monthly files are downloaded, December 2021 to November 2022. Each file is already named correctly and is stored in a separate folder. I made sure to keep a duplicate of the original files for backup. Upon inspecting the data, it is deemed reliable and usable in our analysis. 
+
+### __PROCESS__ data using R
+Data from Cyclistic December 2021 to November 2022. The Columns: ride_length (ended_at - started_at) and day_of_week was added to each monthly file.
+
+#### Install the required packages
+```{r results='hide', message=FALSE}
+install.packages("tidyverse", repos="http://cran.us.r-project.org")
+```
+
+#### Load required packages
+```{r results='hide', message=FALSE}
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(skimr)
+library(lubridate)
+library(janitor)
+```
+
+#### Load Data into R
+
+
+```{r results='hide', message=FALSE, warning=FALSE}
+df1 <- read_csv("Cyclistic Modified Data/202112-divvy-tripdata_v1.csv")
+df2 <- read_csv("Cyclistic Modified Data/202201-divvy-tripdata_v1.csv")
+df3 <- read_csv("Cyclistic Modified Data/202202-divvy-tripdata_v1.csv")
+df4 <- read_csv("Cyclistic Modified Data/202203-divvy-tripdata_v1.csv")
+df5 <- read_csv("Cyclistic Modified Data/202204-divvy-tripdata_v1.csv")
+df6 <- read_csv("Cyclistic Modified Data/202205-divvy-tripdata_v1.csv")
+df7 <- read_csv("Cyclistic Modified Data/202206-divvy-tripdata_v1.csv")
+df8 <- read_csv("Cyclistic Modified Data/202207-divvy-tripdata_v1.csv")
+df9 <- read_csv("Cyclistic Modified Data/202208-divvy-tripdata_v1.csv")
+df10 <- read_csv("Cyclistic Modified Data/202209-divvy-tripdata_v1.csv")
+df11 <- read_csv("Cyclistic Modified Data/202210-divvy-tripdata_v1.csv")
+df12 <- read_csv("Cyclistic Modified Data/202211-divvy-tripdata_v1.csv")
+```
+
+#### Inspecting the loaded files for compatibility with each other.
+check if all files have the same number of columns. Check if those columns have the same data type. *compare_df_cols* function is from the janitor package.
+
+```{r}
+compare_df_cols(df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11,df12)
+```
+Columns have the same data type
+
+#### Merge 
+merge all the files into one data frame using rbind function. Lets name or new data frame *cycle2022*
+```{r}
+cycle2022 <- rbind(df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11,df12)
+```
+
+Check out your merged data frame
+```{r}
+str(cycle2022)
+```
+### Cleaning your data
+
+#### Data Types
+Always check if your data types correspond to your column. Notice that the start and end date columns have a character data type. We need to convert that to date and time format to aid in our analysis and avoid future errors.
+For this, we use the *lubridate* package function.
+```{r}
+cycle2022$started_at = dmy_hm(cycle2022$started_at)
+cycle2022$ended_at = dmy_hm(cycle2022$ended_at)
+```
+verify if started_at and ended_at columns have been converted to date and time format.
+```{r}
+str(cycle2022)
+```
+it is now in date time format.
+
+#### We will now only work with data with ride_length greater than zero with no duplicates
+
+```{r}
+cycle2022 <- cycle2022 %>% filter(ride_length > 0) %>%
+  distinct()
+```
+
+#### Removing missing/blank (NA) data. 
+```{r}
+cycle2022 <- cycle2022 %>% drop_na()
+```
+
+#### Arrange the data according to date
+```{r}
+cycle2022<-arrange(cycle2022, started_at)
+```
+
+#### Now that we have inspected and cleaned our data, we will now save it into a csv file for later use in other software ex. Tableau.
+```{r eval=FALSE}
+write.csv(cycle2022, "C:\\Users\\kingl\\Documents\\Case_Study_1_Cyclistic\\cycle2022_v2.csv")
+```
+
+### All we have to do now is to further __Analyze__, __Share/Visualize__, and __Act__. analysis and visualization will be done in tableau together with our recommendations for action.
